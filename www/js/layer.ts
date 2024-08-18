@@ -1,6 +1,7 @@
 import * as L from "leaflet";
 import { mandelbrot_image } from "mandelbrot-webapp";
 
+
 class MandelbrotLayer extends L.GridLayer {
     defaultPosition: [number, number];
 
@@ -24,38 +25,53 @@ class MandelbrotLayer extends L.GridLayer {
         return { re, im };
     }
 
-    createTile(coords: L.Coords, done: L.DoneCallback){
-        const canvas = L.DomUtil.create(
-            "canvas",
-            "mandelbrot-tile"
-        ) as HTMLCanvasElement;
+    createTile(coords: L.Coords, done: L.DoneCallback) {
+        var wrapper = document.createElement('div');
+        var canvas = document.createElement('canvas');
+    
+        const tile_size = this.getTileSize(); 
+        const ctx = canvas.getContext("2d");
+    
+        if (!ctx) {
+            console.error('Failed to get 2D context');
+            done(new Error('Failed to get 2D context'), null);
+            return null;
+        }
+    
 
-        const tile_size = this.getTileSize().x; 
-        const ctx = canvas.getContext("2d")!;
-        canvas.height = tile_size;
-        canvas.width = tile_size;
-
-        const {re : re_min, im : im_min} = this.tilePositionToComplexParts(coords.x, coords.y, coords.z);
-        const {re : re_max, im : im_max} = this.tilePositionToComplexParts(coords.x+1, coords.y+1, coords.z);
-
-        const data = mandelbrot_image(
-            re_min,
-            re_max,
-            im_min,
-            im_max,
-            tile_size,
-            tile_size
-        )
-
-        const imageData = new ImageData(
-            Uint8ClampedArray.from(data),
-            tile_size,
-            tile_size
-        );
-
-        ctx.putImageData(imageData, 0, 0);
-
-        return canvas;
+        canvas.width = tile_size.x;
+        canvas.height = tile_size.y;
+        
+        wrapper.style.width = tile_size.x + 'px';
+        wrapper.style.height = tile_size.y + 'px';
+        wrapper.appendChild(canvas);
+    
+        // Asynchronous tile creation
+        setTimeout(() => {
+            const {re : re_min, im : im_min} = this.tilePositionToComplexParts(coords.x, coords.y, coords.z);
+            const {re : re_max, im : im_max} = this.tilePositionToComplexParts(coords.x+1, coords.y+1, coords.z);
+    
+            const data = mandelbrot_image(
+                re_min,
+                re_max,
+                im_min,
+                im_max,
+                tile_size.x,
+                tile_size.y
+            );
+    
+            const imageData = new ImageData(
+                Uint8ClampedArray.from(data),
+                tile_size.x,
+                tile_size.y
+            );
+    
+            ctx.putImageData(imageData, 0, 0);
+    
+            done(null, wrapper);
+        }, 1);
+    
+        return wrapper;
     }
 }
 
