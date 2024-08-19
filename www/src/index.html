@@ -1,44 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🏵️ Mandelbrot in Wasm+Rust</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏵️ Mandelbrot in Wasm+Rust</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Additional styling to ensure off-canvas menu is hidden initially */
+        #settingsMenu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        #settingsMenu.open {
+            transform: translateX(0);
+        }
+    </style>
 </head>
-
 <body class="bg-gray-100">
-  <div class="mandelbrot flex flex-col lg:flex-row h-screen">
-    <div id="mandelbrot-map" class="flex-1 z-0 h-full w-full"></div>
-    <div id="mandelbrot-settings" class="lg:w-1/5 bg-white p-6 z-10 shadow-lg">
-      <h3 class="text-2xl font-bold text-blue-700 mb-4">Color Palette</h3>
-
-      <div id="colorPickerContainer" class="flex flex-col items-start mb-4 space-y-1">
-        <!-- Color pickers will be added here dynamically -->
-      </div>
-
-      <div class="flex justify-center">
-        <button id="addColorButton">
-          <svg class="h-6 w-6 text-neutral-500 hover:text-blue-600" width="24" height="24" viewBox="0 0 24 24"
-            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" />
-            <circle cx="12" cy="12" r="9" />
-            <line x1="9" y1="12" x2="15" y2="12" />
-            <line x1="12" y1="9" x2="12" y2="15" />
+    <!-- Main Content -->
+    <div class="mandelbrot flex flex-col lg:flex-row h-screen">
+        <div id="mandelbrot-map" class="flex-1 z-0 h-full w-full"></div>
+        
+        <!-- Off-canvas Trigger Button -->
+        <button id="openSettingsButton" class="fixed top-3 right-3 bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 z-10">
+          <svg class="h-6 w-6 text-white-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  
+            <path stroke="none" d="M0 0h24v24H0z"/>  
+            <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />  
+            <circle cx="12" cy="12" r="3" />
           </svg>
         </button>
-      </div>
-
-      <h3 class="text-lg font-medium mt-6">Preview</h3>
-      <div class="gradient-preview mt-2 p-2 h-12 bg-gray-200 rounded" id="gradientPreview"></div>
-
-      <div class="mandelbrot-buttons flex justify-center">
-        <button id="submitButton"
-          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mt-4">Submit</button>
-      </div>
     </div>
-  </div>
-</body>
 
+    <!-- Off-canvas Menu -->
+    <div id="settingsMenu" class="fixed top-0 right-0 bottom-0 z-20 bg-white shadow-lg" style="width: 20%;">
+        <div class="relative h-full p-6">
+            <button id="closeSettingsButton" class="text-gray-500 hover:text-gray-800 absolute top-4 right-4">
+                <svg class="h-6 w-6" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z"/>
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+
+            <h3 class="text-2xl font-bold text-blue-700 mb-4">Color Palette</h3>
+            <div id="colorPickerContainer" class="flex flex-col items-start space-y-1">
+                <!-- Color pickers will be added here dynamically -->
+            </div>
+
+            <div class="flex justify-center">
+                <button id="addColorButton" class="text-gray-500 p-2 rounded-full hover:text-blue-600">
+                    <svg class="h-6 w-6" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z"/>
+                        <circle cx="12" cy="12" r="9" />
+                        <line x1="9" y1="12" x2="15" y2="12" />
+                        <line x1="12" y1="9" x2="12" y2="15" />
+                    </svg>
+                </button>
+            </div>
+            <div class="flex mt-4">
+                <button id="submitButton" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full">Submit</button>
+            </div>
+            <h3 class="text-medium font-medium mt-6">Preview</h3>
+            <div class="gradient-preview mt-2 p-2 h-16 bg-gray-200 rounded" id="gradientPreview"></div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript to handle the off-canvas menu visibility
+        const openSettingsButton = document.getElementById('openSettingsButton');
+        const closeSettingsButton = document.getElementById('closeSettingsButton');
+        const settingsMenu = document.getElementById('settingsMenu');
+
+        openSettingsButton.addEventListener('click', () => {
+            settingsMenu.classList.add('open');
+        });
+
+        closeSettingsButton.addEventListener('click', () => {
+            settingsMenu.classList.remove('open');
+        });
+    </script>
+</body>
 </html>
