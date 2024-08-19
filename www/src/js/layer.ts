@@ -1,18 +1,18 @@
 import * as L from "leaflet";
 import { mandelbrot_image } from "mandelbrot-webapp";
 
-
 class MandelbrotLayer extends L.GridLayer {
     defaultPosition: [number, number];
+    colors: string[];
 
-    constructor(defaultPosition: [number, number]) {
+    constructor(defaultPosition: [number, number], colors: string[]) {
         super({
             noWrap: true
         });
         this.defaultPosition = defaultPosition;
+        this.colors = colors;
     }
 
-    // TODO: i dont know that this function does lol
     private tilePositionToComplexParts(
         x: number,
         y: number,
@@ -26,8 +26,8 @@ class MandelbrotLayer extends L.GridLayer {
     }
 
     createTile(coords: L.Coords, done: L.DoneCallback) {
-        var wrapper = document.createElement('div');
-        var canvas = document.createElement('canvas');
+        const wrapper = document.createElement('div');
+        const canvas = document.createElement('canvas');
     
         const tile_size = this.getTileSize(); 
         const ctx = canvas.getContext("2d");
@@ -38,7 +38,6 @@ class MandelbrotLayer extends L.GridLayer {
             return null;
         }
     
-
         canvas.width = tile_size.x;
         canvas.height = tile_size.y;
         
@@ -46,10 +45,9 @@ class MandelbrotLayer extends L.GridLayer {
         wrapper.style.height = tile_size.y + 'px';
         wrapper.appendChild(canvas);
     
-        // Asynchronous tile creation
         setTimeout(() => {
-            const {re : re_min, im : im_min} = this.tilePositionToComplexParts(coords.x, coords.y, coords.z);
-            const {re : re_max, im : im_max} = this.tilePositionToComplexParts(coords.x+1, coords.y+1, coords.z);
+            const {re: re_min, im: im_min} = this.tilePositionToComplexParts(coords.x, coords.y, coords.z);
+            const {re: re_max, im: im_max} = this.tilePositionToComplexParts(coords.x+1, coords.y+1, coords.z);
     
             const data = mandelbrot_image(
                 re_min,
@@ -57,7 +55,8 @@ class MandelbrotLayer extends L.GridLayer {
                 im_min,
                 im_max,
                 tile_size.x,
-                tile_size.y
+                tile_size.y,
+                this.colors
             );
     
             const imageData = new ImageData(
@@ -73,6 +72,10 @@ class MandelbrotLayer extends L.GridLayer {
     
         return wrapper;
     }
+
+    updateGradient(newColors: string[]) {
+        this.colors = newColors;
+    }
 }
 
-export {MandelbrotLayer};
+export { MandelbrotLayer };

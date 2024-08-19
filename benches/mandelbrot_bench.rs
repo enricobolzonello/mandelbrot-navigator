@@ -43,6 +43,7 @@ fn benchmark_mandelbrot(c: &mut Criterion) {
                     *im_max,
                     WIDTH,
                     HEIGHT,
+                    vec!["#3147AA".to_string(), "#08C0F5".to_string(), "#50F475".to_string(), "#60F800".to_string(), "#DFFB00".to_string()]
                 )
             })
         });

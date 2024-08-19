@@ -4,10 +4,10 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { experiments } = require('webpack');
 
 module.exports = {
-  entry: './js/main.ts',
+  entry: './src/js/main.ts',
   plugins: [
     new HtmlWebpackPlugin({
-      template: "index.html",
+      template: "src/index.html",
       root: path.resolve(__dirname, "."),
     }),
     new MiniCssExtractPlugin(),
@@ -29,10 +29,11 @@ module.exports = {
         use: [
           {
             loader: MiniCssExtractPlugin.loader,
-            options: { publicPath: "css/" },
+            options: { publicPath: "./" },
           },
           "css-loader",
           "sass-loader",
+          "postcss-loader"
         ],
       },
       {

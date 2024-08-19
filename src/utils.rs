@@ -36,7 +36,7 @@ pub fn save_mandelbrot_png(
     image_height: usize,
 ) -> Result<(), image::ImageError> {
     // Get the raw pixel data from mandelbrot_image
-    let pixels = mandelbrot_image(re_min, re_max, im_min, im_max, image_width, image_height);
+    let pixels = mandelbrot_image(re_min, re_max, im_min, im_max, image_width, image_height, vec!["#C41189".to_string(), "#00BFFF".to_string(), "#FFD700".to_string()]);
 
     // Create a new ImageBuffer
     let mut img = ImageBuffer::new(image_width as u32, image_height as u32);
