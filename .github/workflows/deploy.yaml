@@ -1,9 +1,19 @@
-name: Build and Deploy Rust + WASM to GitHub Pages
+name: Deploy Rust + WASM to GitHub Pages
 
 on:
   push:
     branches:
       - main 
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -12,7 +22,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
@@ -27,42 +40,31 @@ jobs:
         run: wasm-pack build --release
 
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4.0.3
         with:
           node-version: '20' 
 
-      - name: Install dependencies
-        run: npm install
-        working-directory: www  
+      - name: Install Node.js dependencies
+        run: npm ci
+        working-directory: www 
 
       - name: Build static website
         run: npm run build
-        working-directory: www  
+        working-directory: www 
 
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3.0.1
         with:
-          name: build-artifacts
-          path: www/dist  
+          path: ./www/dist 
 
   deploy:
     name: Deploy to GitHub Pages
+    environment:
+      name: github-pages
     runs-on: ubuntu-latest
-    needs: build  
+    needs: build
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: build-artifacts
-          path: www/dist  
-
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./www/dist  
-          force_orphan: true      
+        id: deployment
+        uses: actions/deploy-pages@v4
