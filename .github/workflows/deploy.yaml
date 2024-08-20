@@ -28,10 +28,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
