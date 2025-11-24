@@ -11,7 +11,7 @@ crate-type = ["cdylib", "rlib"]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-colorgrad = "0.7.0"
+colorgrad = "0.8.0"
 image = "0.25.2"
 num = "0.4.3"
 itertools-num = "0.1.3"
